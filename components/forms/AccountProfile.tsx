@@ -15,8 +15,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { userValidation } from "@/lib/validations/user";
 import { Button } from "../ui/button";
 import Image from "next/image";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useState } from "react";
 import { Textarea } from "../ui/textarea";
+import { fi } from "zod/v4/locales";
+import { isBase64Image } from "@/lib/utils";
+import { useUploadThing } from "@/lib/uploadthing";
+import { isGeneratorFunction } from "util/types";
 
 interface Props{
 
@@ -31,15 +35,34 @@ interface Props{
 btnTitle : string; 
 }
 
-const handleImage=(e:ChangeEvent, fieldChange: (value: string) => void)=>{
-    e.preventDefault();
-}
-function onSubmit(values: z.infer<typeof userValidation>) {
-    console.log(values);
-}
+
 
 function AccountProfile({user,btnTitle}:Props) 
 {
+
+   const[files,setFiles] = useState<File[]>([])
+   const { startUpload } = useUploadThing("media")
+    
+    const handleImage=(e:ChangeEvent<HTMLInputElement>, fieldChange: (value: string) => void)=>{
+      e.preventDefault();
+
+      const fileReader = new FileReader();
+      if(e.target.files && e.target.files.length>0)
+      {
+        const file = e.target.files[0];
+
+        setFiles(Array.from(e.target.files));
+        if(!file.type.includes('image')) return;
+
+        fileReader.onload = async(event)=>{
+          const imageDataUrl = event.target?.result?.toString() ||"" ;
+          fieldChange(imageDataUrl);
+        }
+
+        fileReader.readAsDataURL(file);
+      }
+     }
+
     const form = useForm({
         resolver: zodResolver(userValidation),
         defaultValues:{
@@ -49,6 +72,25 @@ function AccountProfile({user,btnTitle}:Props)
             bio: user?.bio || ""    
         }
     })
+
+    const onSubmit= async(values: z.infer<typeof userValidation>) => {
+
+      const blob = values.profile_photo;
+
+      const hasImageChanged = isBase64Image(blob);
+      // If the image is a base64 string, it means it has been changed ,and if ot , then its  aurl ,ie ,  unchanged previous image
+
+      if (hasImageChanged) {
+        const imgRes = await startUpload(files)
+
+        if(imgRes && imgRes[0].url)
+        {
+          values.profile_photo = imgRes[0].url;
+        }
+        
+      }
+    }
+
     return(
          <Form {...form}>
       <form 
@@ -146,7 +188,7 @@ function AccountProfile({user,btnTitle}:Props)
                 </FormLabel>
                <FormControl >
                 <Textarea
-                rows={10}
+                rows={4}
                        className="account-form_input no-focus"
                 {...field}
                 />

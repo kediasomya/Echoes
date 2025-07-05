@@ -20,7 +20,7 @@ function LeftSidebar() {
           return (
             <Link
               href={link.route}
-              className={`leftsidebar_link ${isActive ? "bg-purple-500" : ""} `}
+              className={`leftsidebar_link ${isActive ? "bg-purple-500" : ""}`}
               key={link.label}
             >
               <Image
