@@ -21,6 +21,8 @@ import { fi } from "zod/v4/locales";
 import { isBase64Image } from "@/lib/utils";
 import { useUploadThing } from "@/lib/uploadthing";
 import { isGeneratorFunction } from "util/types";
+import { updateUser } from "@/lib/actions/user.actions";
+import { usePathname, useRouter } from "next/navigation";
 
 interface Props{
 
@@ -37,11 +39,15 @@ btnTitle : string;
 
 
 
-function AccountProfile({user,btnTitle}:Props) 
+function AccountProfile({user,btnTitle}:Props 
+  //{user,btntitile , of type interface props}
+) 
 {
 
    const[files,setFiles] = useState<File[]>([])
-   const { startUpload } = useUploadThing("media")
+   const { startUpload } = useUploadThing("media");   
+   const router=useRouter();
+   const pathname = usePathname() ;
     
     const handleImage=(e:ChangeEvent<HTMLInputElement>, fieldChange: (value: string) => void)=>{
       e.preventDefault();
@@ -83,12 +89,32 @@ function AccountProfile({user,btnTitle}:Props)
       if (hasImageChanged) {
         const imgRes = await startUpload(files)
 
-        if(imgRes && imgRes[0].url)
+        if(imgRes && imgRes[0].ufsUrl)
         {
-          values.profile_photo = imgRes[0].url;
+          values.profile_photo = imgRes[0].ufsUrl;
         }
         
       }
+
+      await updateUser({
+         userId: user.id,
+        username:values.username,
+        name:values.name,
+        bio:values.bio,
+        image:values.profile_photo,
+        path:pathname
+        } );
+        //passing these as object rather than a parameter ,
+        //because , this way , the order of the paramertes
+        //doesnt affect the correct assigning
+
+        //now we can pass values in any order
+
+        if(pathname === '/profile/edit')
+          router.back();
+        else
+          router.push('/');
+     
     }
 
     return(
@@ -132,6 +158,7 @@ function AccountProfile({user,btnTitle}:Props)
                 onChange={(e) => {handleImage(e,field.onChange)}}
                 />
               </FormControl>
+              <FormMessage/>
               
             </FormItem>
           )}
@@ -152,6 +179,7 @@ function AccountProfile({user,btnTitle}:Props)
                 {...field}
                 />
               </FormControl>
+              <FormMessage/>
               
             </FormItem>
           )}
@@ -172,6 +200,7 @@ function AccountProfile({user,btnTitle}:Props)
                 {...field}
                 />
               </FormControl>
+              <FormMessage/>
               
             </FormItem>
           )}
@@ -193,6 +222,7 @@ function AccountProfile({user,btnTitle}:Props)
                 {...field}
                 />
               </FormControl>
+             <FormMessage/>
               
             </FormItem>
           )}

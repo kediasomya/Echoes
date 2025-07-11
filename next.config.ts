@@ -2,7 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   experimental: {
-    serverActions: {},
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
   },
   serverExternalPackages: ["mongoose"], // ✅ Moved out of experimental
   images: {
