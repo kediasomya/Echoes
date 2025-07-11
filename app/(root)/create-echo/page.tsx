@@ -14,11 +14,11 @@ async function Page()
          redirect('/onboarding');
 
 
-
-    return(
+    return 
+    (
         <>
         <h1 className= "head-text">create echo</h1>
-       <PostEcho  userId = {userInfo.id}/>
+        <PostEcho  userId = {userInfo.id}/>
         </>
     
     )
