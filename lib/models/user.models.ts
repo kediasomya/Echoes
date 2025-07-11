@@ -6,9 +6,9 @@ const userschema = new mongoose.Schema({
     name :{type:String, required:true},
     image:{ type:String  },
     bio:String,
-    threads:[
+    echoes:[
         {type: mongoose.Schema.Types.ObjectId,
-            ref: 'Thread'
+            ref: 'Echo'
         }
     ],
     onboarded:

@@ -19,6 +19,8 @@ import { fi } from "zod/v4/locales";
 import { isGeneratorFunction } from "util/types";
 import { usePathname, useRouter } from "next/navigation";
 import { echoValidation } from "@/lib/validations/echo";
+import { createEcho } from "@/lib/actions/echo.actions";
+import { getRandomValues } from "crypto";
 
 interface Props{
 
@@ -51,8 +53,15 @@ function PostEcho({userId}: {userId :string})
         }
     })
 
-    const onSubmit=async()=>{
-        await createEcho();
+    const onSubmit=async( values: z.infer<typeof echoValidation>)=>{
+        await createEcho({
+            text:values.echo,
+            author:userId,
+             communityId: null,
+              path : pathname,
+          });
+          router.push("/")
+          //to go back to homepage after postin the thread
     }
 
      return (

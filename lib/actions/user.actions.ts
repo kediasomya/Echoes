@@ -68,6 +68,8 @@ export async function fetchUser(userId:string)
 {
     try{
         connectToDb();
+        //User is a mongodb model
+        //in user.models.ts
         return await User
         .findOne({id:userId})
         // .populate({
