@@ -136,7 +136,7 @@ function AccountProfile({user,btnTitle}:Props
                         width={96}
                         height={96}
                         priority
-                        className="rounded-full object-contain"
+                        className="w-full h-full rounded-full object-cover"
                         />:
                         <Image
                         src={"./assets/profile.svg"}
@@ -144,7 +144,7 @@ function AccountProfile({user,btnTitle}:Props
                         width={24}
                         height={24}
                         
-                        className=" object-contain"
+                        className="w-full h-full object-cover"
                         />
                     }
                    
