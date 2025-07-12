@@ -21,6 +21,7 @@ export default async function home() {
         ):(
           <>
           {result.posts.map((post)=>(
+            //making a map of all the EchoCards
             <EchoCard
               key = {post._id}
               id = {post._id}
