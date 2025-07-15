@@ -1,3 +1,5 @@
+"use client";
+
 
 import { SignedIn, SignOutButton, UserButton,OrganizationSwitcher } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
