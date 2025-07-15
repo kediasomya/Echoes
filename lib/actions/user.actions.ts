@@ -160,7 +160,9 @@ export async function getActivity(userId:string)
             //author:{$ne:userId}
             //this means that the replies should not be from the user itself
 
-        }).populate({
+        })
+        .sort({createdAt : 'desc'})
+        .populate({
             path: 'author',
             model: User,
             select: 'name image _id'
