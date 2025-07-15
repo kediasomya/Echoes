@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { getJsPageSizeInKb } from "next/dist/build/utils";
 import { SortOrder } from "mongoose";
 import { FilterQuery } from "mongoose";
+import Echo from "../models/echo.models";
 interface pp{
     userId: string,
     username: string,
@@ -135,5 +136,40 @@ export async function fetchUsers({
     }
     catch(error:any){
              throw new Error(`failed to fetch users with the searched id  ${error.message}`)
+    }
+}
+
+export async function getActivity(userId:string)
+{
+    try{
+        connectToDb();
+        //finding all the threads created by the user
+        const userEcho = await Echo.find({author:userId})
+
+        //collecting child thread ids of that threads
+        const childEchoIds = userEcho.reduce((acc,userEcho  ) => {
+            return acc.concat(userEcho.children);
+        },[]);
+        //childEchoIds is an array of all the child thread _ids
+        //the reduce thing makes the child thread ids into a single array
+        //[] is the default arrayy
+
+
+        const replies = await Echo.find({
+            _id:{$in:childEchoIds},
+            //author:{$ne:userId}
+            //this means that the replies should not be from the user itself
+
+        }).populate({
+            path: 'author',
+            model: User,
+            select: 'name image _id'
+        })
+
+        return replies;
+
+    }
+    catch(error:any){
+        throw new Error(`failed to fetch user activities ${error.message}`)
     }
 }
