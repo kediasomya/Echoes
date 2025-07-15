@@ -1,7 +1,9 @@
-import { OrganizationSwitcher, SignedIn, SignOutButton, UserButton } from "@clerk/nextjs";
+
+import { SignedIn, SignOutButton, UserButton,OrganizationSwitcher } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import Link from "next/dist/client/link";
 import Image from "next/image";
+
 
 function Topbar() {
   return (

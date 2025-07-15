@@ -52,7 +52,7 @@ const EchoCard=({
                             src={author.image}
                             alt="profile image"
                             fill
-                            className="cursor-pointer rounded-full "
+                            className="cursor-pointer rounded-full object-cover"
                         />
                         </Link>
                         <div className =" echoes-card_bar"/>
@@ -64,7 +64,7 @@ const EchoCard=({
                         <h4 className="cursor-pointer text-base-semibold text-light-1">{author.name}</h4>
                         </Link>
                         <p className="mt-2 text-small-regular text-light-2">{Content}</p>
-                        <div className="flex flex-col mt-5 gap-3">
+                        <div className={`${iscomment && 'mb-10'} *:flex flex-col mt-5 gap-3`}>
                             <div className="flex gap-3.5">
                                 <Image src="/assets/heart-gray.svg" alt = 'heart' className="cursor-pointer object-contain " width={24} height={24} />
                                 <Link href={`/echo/${id}`}>
@@ -75,9 +75,11 @@ const EchoCard=({
                                 <Image src="/assets/share.svg" alt = 'share' className="cursor-pointer object-contain " width={24} height={24} />
                             </div>
                             {iscomment && comments.length>0 && (
+                                <div >
                                 <Link href={`/echo/${id}`}>
                                     <p className="mt-1 text-subtle-medium text-gray-1">{comments.length} replies</p>
                                 </Link>
+                                </div>
                             )}
 
                         </div>

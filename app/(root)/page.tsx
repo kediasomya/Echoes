@@ -7,10 +7,11 @@ import { currentUser } from "@clerk/nextjs/server";
 
 export default async function home() {
 
-  const result = await fetchPosts(1,30)
+  const result = await fetchPosts(1,10)
+  //resukt ke paas ek to post component hoga , aur ek isNext , hoga
   const user = await currentUser();
-  console.log('heyyyyyyyyyy')
-  console.log(result);
+ // console.log('heyyyyyyyyyy')
+ // console.log(result);
   return (
     <header>
       <h1 className="head-text text-left">home</h1>
@@ -20,6 +21,8 @@ export default async function home() {
           <p className="no-result">no posts to show , create new posts</p>
         ):(
           <>
+          {/* echoCrds ka map banake jitne fetch kiye hai ek baar me , here 30 , to show 
+          in a page , each as a separate echoCard */}
           {result.posts.map((post)=>(
             //making a map of all the EchoCards
             <EchoCard

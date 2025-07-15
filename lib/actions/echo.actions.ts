@@ -43,9 +43,7 @@ export async function createEcho({
 
 
 export async function fetchPosts(pageNumber=1 , pageSize =20)
-{
-
-    
+{ 
     connectToDb();
 
     //to calculate how many posts to skip after onepage
@@ -166,3 +164,33 @@ export async function addComment(
   }
   
 }
+
+export async function fetchUserPosts(userId:string){
+  connectToDb();
+  try{
+
+    //todo populate community
+    const echoes = await User.findOne({id:userId})
+    .populate({
+      path:'echoes',
+      model:'Echo',
+      populate:{
+        path:'children',
+        model:'Echo',
+        populate:{
+          path:'author',
+          model:'User',
+          select:'name image id'
+        }
+      }
+    })
+    return echoes;
+    
+
+  }catch(error:any)
+  {
+    throw new Error(`error fething user/community posts: ${error.message}`)
+  }
+  }
+
+

@@ -79,7 +79,7 @@ function AccountProfile({user,btnTitle}:Props
         }
     })
 
-    const onSubmit= async(values: z.infer<typeof userValidation>) => {
+  const onSubmit= async(values: z.infer<typeof userValidation>) => {
 
       const blob = values.profile_photo;
 
@@ -89,7 +89,7 @@ function AccountProfile({user,btnTitle}:Props
       if (hasImageChanged) {
         const imgRes = await startUpload(files)
 
-        if(imgRes && imgRes[0].ufsUrl)
+        if(imgRes  && imgRes[0] &&  imgRes[0].ufsUrl)
         {
           values.profile_photo = imgRes[0].ufsUrl;
         }

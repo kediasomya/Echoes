@@ -4,7 +4,17 @@ import { profile } from "console";
 import User from "../models/user.models";
 import { connectToDb } from "../mongoose";
 import { revalidatePath } from "next/cache";
-
+import { getJsPageSizeInKb } from "next/dist/build/utils";
+import { SortOrder } from "mongoose";
+import { FilterQuery } from "mongoose";
+interface pp{
+    userId: string,
+    username: string,
+    name: string,
+    bio: string,
+    image: string,
+    path: string
+}
 
 export async function updateUser({
     userId,
@@ -13,14 +23,7 @@ export async function updateUser({
     bio,
     image,
     path
-}: {
-    userId: string,
-    username: string,
-    name: string,
-    bio: string,
-    image: string,
-    path: string
-}) : Promise<void> {
+}: pp) : Promise<void> {
     try{
         await connectToDb();
         console.log("Attempting to update user with data:", { userId, username, name, bio, image });
@@ -81,5 +84,56 @@ export async function fetchUser(userId:string)
     catch(error:any){
         throw new Error(`failed to fetch user ${error.message}`)
 
+    }
+}
+
+export async function fetchUsers({
+    userId,
+    pageNumber =1,
+    pageSize =20,
+    searchString="",
+    sortBy ="desc"
+}:{
+    userId:string;
+    pageNumber?:number;
+    pageSize?: number;
+    searchString?:string;
+    sortBy?: SortOrder
+}
+){
+    try{
+        connectToDb();
+        const skips = (pageNumber-1)* pageSize;
+        const regex = new RegExp(searchString , "i");
+        //i means case insensitive here
+
+        const query:FilterQuery<typeof User> = {
+            id:{$ne: userId}
+           
+        }
+         if(searchString.trim()!==''){
+            query.$or=[
+                {username :{$regex: regex}},
+                {name :{$regex: regex}},
+            ]
+         }
+
+         const sorting = {createdAt: sortBy};
+         const userQuery = User.find(query)
+         .sort(sorting)
+         .skip(skips)
+         .limit(pageSize);
+
+         const totalUserCount = await User.countDocuments(query);
+
+         const users = await userQuery.exec();
+         const isNext = totalUserCount> skips +users.length;
+
+         
+         return {users , isNext};  
+
+    }
+    catch(error:any){
+             throw new Error(`failed to fetch users with the searched id  ${error.message}`)
     }
 }
