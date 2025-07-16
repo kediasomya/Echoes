@@ -21,6 +21,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { echoValidation } from "@/lib/validations/echo";
 import { createEcho } from "@/lib/actions/echo.actions";
 import { getRandomValues } from "crypto";
+import { useOrganization } from "@clerk/nextjs";
 
 interface Props{
 
@@ -44,6 +45,11 @@ function PostEcho({userId}: {userId :string})
 //    const { startUpload } = useUploadThing("media");   
    const router=useRouter();
    const pathname = usePathname() ;
+   const {organization} = useOrganization();
+   //why {} deconstructing the ans of useorganization
+   //Because useOrganization returns an object with the organization data,
+   //we use destructuring to extract the organization property directly.
+   //OTHERWISE , organization.organization.id would be used to access the organization id
 
     const form = useForm({
         resolver: zodResolver(echoValidation),
@@ -54,10 +60,11 @@ function PostEcho({userId}: {userId :string})
     })
 
     const onSubmit=async( values: z.infer<typeof echoValidation>)=>{
+        console.log("Submitting echo with communityId:", organization ? organization.id : null);
         await createEcho({
             text:values.echo,
             author:userId,
-             communityId: null,
+             communityId:organization? organization.id : null,
               path : pathname,
           });
           router.push("/")

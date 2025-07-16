@@ -33,7 +33,7 @@ const Page= async( {params}:{params:{id:string}})=>{
             parentId = {echo.parentId}
             Content = {echo.text}
             author= {echo.author}
-            community = {echo.commmunity}
+            community = {echo.community}
             createdAt = {echo.createdAt}
             comments = {echo.children}
         />
@@ -70,7 +70,7 @@ const Page= async( {params}:{params:{id:string}})=>{
                         parentId = {childItem.parentId}
                         Content = {childItem.text}
                         author= {childItem.author}
-                        community = {childItem.commmunity}
+                        community = {childItem.community}
                         createdAt = {childItem.createdAt}
                         comments = {childItem.children}
                         iscomment

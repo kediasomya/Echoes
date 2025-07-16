@@ -8,6 +8,11 @@ import { getJsPageSizeInKb } from "next/dist/build/utils";
 import { SortOrder } from "mongoose";
 import { FilterQuery } from "mongoose";
 import Echo from "../models/echo.models";
+
+import Community from "../models/community.models";
+
+
+
 interface pp{
     userId: string,
     username: string,
@@ -26,8 +31,8 @@ export async function updateUser({
     path
 }: pp) : Promise<void> {
     try{
-        await connectToDb();
-        console.log("Attempting to update user with data:", { userId, username, name, bio, image });
+         connectToDb();
+        //console.log("Attempting to update user with data:", { userId, username, name, bio, image });
     await User.findOneAndUpdate(
         {
             id:userId,  
@@ -76,11 +81,11 @@ export async function fetchUser(userId:string)
         //in user.models.ts
         return await User
         .findOne({id:userId})
-        // .populate({
-        //         path: 'communities',
-        //         model: Community
+        .populate({
+                path: 'communities',
+                model: Community
 
-        // })
+        })
     }
     catch(error:any){
         throw new Error(`failed to fetch user ${error.message}`)

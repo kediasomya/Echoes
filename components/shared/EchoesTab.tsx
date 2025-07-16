@@ -33,7 +33,7 @@ const EchoesTab =async({currentUserId,accountId,accountType}:Props) =>{
                         name:echo.author.name ,image:echo.author.image , id: echo.author.id
                     }
                 }
-                community = {echo.commmunity}//todo 
+                community = {echo.community}//todo 
                 createdAt = {echo.createdAt}
                 comments = {echo.children}
             />

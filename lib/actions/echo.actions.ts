@@ -5,6 +5,7 @@ import Echo from "../models/echo.models";
 import User from "../models/user.models";
 import { connectToDb } from "../mongoose";
 import { currentUser } from "@clerk/nextjs/server";
+import Community from "../models/community.models";
 interface Params{
     text:string,
     author:string,
@@ -17,14 +18,24 @@ export async function createEcho({
     }: Params) {
     try{
         connectToDb();
+
+          const communityIdObject = await Community.findOne(
+            { id: communityId },
+            { _id: 1 }
+          );
             //Echo is a mongodb model ,just like User was
             //in echo.models.ts
-        const user = await User.findOne({ id: author }); // 'id' is Clerk user id
-        if (!user) throw new Error("User not found");
+         const user = await User.findOne({ id: author }); // 'id' is Clerk user id
+         if (!user) throw new Error("User not found");
+
+        console.log("LOOKUP Community for id:", communityId, "=>", communityIdObject);
+
         const createdEcho = await Echo.create({
             text,
-            author: user._id, // Use MongoDB ObjectId
-            community: null,
+           // author, 
+           author: user._id,
+            // // Use MongoDB ObjectId
+            community: communityIdObject ? communityIdObject._id : null, // Store only the ObjectId
         });
 
         await User.findByIdAndUpdate(
@@ -32,6 +43,13 @@ export async function createEcho({
                 $push:{echoes:createdEcho._id}
             }
         )
+
+            if (communityIdObject) {
+            // Update Community model
+            await Community.findByIdAndUpdate(communityIdObject, {
+              $push: { echoes: createdEcho._id },
+            });
+    }
 
         revalidatePath(path);
     }
@@ -54,11 +72,18 @@ export async function fetchPosts(pageNumber=1 , pageSize =20)
     .sort({createdAt : 'desc'})
     .skip(skips)
     .limit(pageSize)
-    .populate([
+  .populate(
         //populating the author
-      { path: 'author', model: User },
+      { path: 'author', 
+        model: User 
+      })
       //populating the comments, ie ,, children
-      { 
+      .populate({
+        path: 'community',
+        model: Community,
+        
+      })
+      .populate({
         path: 'children',
         populate: {
           path: 'author',
@@ -67,7 +92,7 @@ export async function fetchPosts(pageNumber=1 , pageSize =20)
 
         }
       }
-    ])
+    )
 
     const totalPostCount = await Echo.countDocuments({parentId : {$in: [null,undefined]}});
     const posts = await postsQuery.exec();
@@ -89,11 +114,11 @@ export async function fetchEchoById(id:string){
       }) // Populate the author field with _id and username
 
 
-    //   .populate({
-    //     path: "community",
-    //     model: Community,
-    //     select: "_id id name image",
-     // }) 
+      .populate({
+        path: "community",
+        model: Community,
+        select: "_id id name image",
+     }) 
       // Populate the community field with _id and name
 
 
@@ -174,15 +199,22 @@ export async function fetchUserPosts(userId:string){
     .populate({
       path:'echoes',
       model:'Echo',
-      populate:{
-        path:'children',
-        model:'Echo',
-        populate:{
-          path:'author',
-          model:'User',
+      populate:[
+      {
+        path:'community',
+        model:'Community',
+        select:'_id id name image',
+      },
+        {
+          path:'children',
+          model:'Echo',
+          populate:{
+            path:'author',
+            model:'User',
           select:'name image id'
         }
       }
+    ],
     })
     return echoes;
     
@@ -192,5 +224,18 @@ export async function fetchUserPosts(userId:string){
     throw new Error(`error fething user/community posts: ${error.message}`)
   }
   }
+
+
+async function fetchAllChildEchoes(echoId: string): Promise<any[]> {
+  const childEchoes = await Echo.find({ parentId: echoId });
+
+  const descendantEchoes = [];
+  for (const childEcho of childEchoes) {
+    const descendants = await fetchAllChildEchoes(childEcho._id);
+    descendantEchoes.push(childEcho, ...descendants);
+  }
+
+  return descendantEchoes;
+}
 
 
