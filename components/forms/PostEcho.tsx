@@ -99,7 +99,7 @@ function PostEcho({userId}: {userId :string})
                     )}
             />
 
-            <Button type="submit" className="bg-primary-500">Post thread</Button>
+            <Button type="submit" className="bg-primary-500">Post echo</Button>
         </form>
         </Form>
     )
