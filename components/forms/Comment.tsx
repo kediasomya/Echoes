@@ -87,8 +87,7 @@ const Comment=({echoId,currentUserImage, currentUserId}: Props)=>{
                             {...field}
                             />
                         </FormControl>
-                       
-                        
+                    
                         </FormItem>
                     )}
             />
